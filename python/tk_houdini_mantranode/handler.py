@@ -11,6 +11,7 @@
 # built-ins
 import os
 import sys
+import re
 
 # houdini
 import hou
@@ -299,7 +300,12 @@ class TkMantraNodeHandler(object):
         """Copies the evaluated render path template to the clipboard."""
 
         render_path = self._get_render_path(hou.pwd())
-
+        pattern = re.compile("(\$F(\d))")
+        match = re.search(pattern, render_path)
+        if match:
+            full_frame_spec = match.group(1)
+            padding = match.group(2)
+            render_path = render_path.replace(full_frame_spec, "%0{}d".format(padding,))
         # use Qt to copy the path to the clipboard:
         from sgtk.platform.qt import QtGui
         QtGui.QApplication.clipboard().setText(render_path)
